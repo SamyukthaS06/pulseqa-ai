@@ -17,12 +17,6 @@ export default function Home() {
   useState<Record<number, string>>({});
   const [loadingAI, setLoadingAI] =
   useState<number | null>(null);
-
-  useEffect(() => {
-    fetchQuestions();
-    fetchPolls();
-  }, []);
-
   const fetchQuestions = async () => {
     const { data, error } = await supabase
       .from("questions")
@@ -33,7 +27,7 @@ export default function Home() {
       setQuestions(data);
     }
   };
- const fetchPolls = async () => {
+   const fetchPolls = async () => {
   const { data, error } = await supabase
     .from("polls")
     .select(`
@@ -51,13 +45,21 @@ export default function Home() {
   const sortedPolls = data.map((poll) => ({
     ...poll,
     poll_options: poll.poll_options?.sort(
-      (a: any, b: any) => a.id - b.id
+      (a: { id: number }, b: { id: number }) => a.id - b.id
     ),
   }));
 
   setPolls(sortedPolls);
 }
 };
+
+  useEffect(() => {
+    fetchQuestions();
+    fetchPolls();
+  }, []);
+
+  
+
 const handleDeleteQuestion = async (
   id: number
 ) => {
