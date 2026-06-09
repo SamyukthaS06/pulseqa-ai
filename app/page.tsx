@@ -2,6 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+type Question = {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+  votes: number;
+};
+
+type PollOption = {
+  id: number;
+  option_text: string;
+  votes: number;
+};
+
+type Poll = {
+  id: number;
+  questions: string;
+  poll_options: PollOption[];
+};
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -11,8 +30,8 @@ export default function Home() {
   const [pollQuestion, setPollQuestion] = useState("");
   const [option1, setOption1] = useState("");
   const [option2, setOption2] = useState("");
-  const [polls, setPolls] = useState<any[]>([]);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [aiAnswers, setAiAnswers] =
   useState<Record<number, string>>({});
   const [loadingAI, setLoadingAI] =
@@ -54,10 +73,13 @@ export default function Home() {
 };
 
   useEffect(() => {
-    fetchQuestions();
-    fetchPolls();
-  }, []);
+  const loadData = async () => {
+    await fetchQuestions();
+    await fetchPolls();
+  };
 
+  loadData();
+}, []);
   
 
 const handleDeleteQuestion = async (
@@ -499,7 +521,7 @@ const generateAIAnswer = async (
   {polls.map((poll) => {
 
     const totalVotes = poll.poll_options.reduce(
-      (sum: number, option: any) =>
+      (sum: number, option: PollOption) =>
         sum + option.votes,
       0
     );
@@ -524,7 +546,7 @@ const generateAIAnswer = async (
           </button>
         </div>
 
-        {poll.poll_options?.map((option: any) => {
+        {poll.poll_options?.map((option: PollOption) => {
 
           const percentage =
             totalVotes === 0
